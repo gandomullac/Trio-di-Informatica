@@ -36,11 +36,13 @@ E:
 print:
 	la $a0, ($t5)			# Carico il valore minimo
 	syscall				# Stampo a video la variabile caricata ($v0 == 1)
+	addi $v0, $zero, 11		# Predispongo la variabile della chiamata a sistema a 11 -> stampa carattere
+	li $a0, 32			# Ottengo il carattere di spazio
+	syscall				# Stampo un carattere di spazio
 	la $a0, ($t6)			# Carico il valore massimo
+	addi $v0, $zero, 1		# Predispongo la variabile della chiamata a sistema a 1-> stampa intero
 	syscall				# Stampo a video la variabile caricata ($v0 == 1)
 
 exit:
 	addi $v0, $zero, 10		# Predispongo la variabile della chiamata a sistema a 10 -> Termina l'esecuzione
 	syscall				# Termino l'esecuzione
-
-###	Stampa i due numeri senza spazi o newline
