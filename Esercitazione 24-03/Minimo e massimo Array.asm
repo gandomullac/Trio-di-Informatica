@@ -7,7 +7,7 @@ arr_w: 	.word 10,8,10,2,15		# Scrivo i valori della direttiva word, che verranno
 init:
 	add $t0, $zero, $zero 		# Indice: 		i   = 0
 	addi $t1, $zero, 5    		# Dimensione Logica:	DIM = 5
-	addi $t5, $zero, 100		# Dichiaro la variabile che conterrà il valore minimo. (2^32)-1 è l'intero più grande ottenibile con l'architettura in 32 bit
+	addi $t5, $zero, 100		# Dichiaro la variabile che conterrà il valore minimo. Prendo come esempio 100
 	add $t6, $zero, $zero		# Dichiaro la variabile che conterrà il valore massimo. 0 è il valore più piccolo che posso ottenere
 	la $a1, arr_w			# Ottengo l'indirizzo della word
 	addi $v0, $zero, 1		# Predispongo la variabile della chiamata a sistema a 1 -> stampa intero
