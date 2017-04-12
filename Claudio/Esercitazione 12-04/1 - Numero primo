@@ -1,0 +1,10 @@
+	.data				# Seguono le direttive
+number:	.word 12			# Numero n
+
+	.text				# Seguono le linee di codice
+	la $t0, number			# Carico l'indirizzo della word
+	lw $t1, 0($t0)			# Carico la word (il suo unico valore) nella variabile temporanea
+	
+	
+	 
+	
