@@ -10,7 +10,7 @@ number:	.word 12			# Numero n
 PRIME:
 	move $v0, $zero			# Inizializzo la variabile di ritorno (opzionale nell'emulatore)
 	li $t1, 2			# Carico il divisore
-	
+loop:	
 	slt $t2, $t1, $a1		# Verifico che il divisore non sia minore di n/2
 	beq $t2, $zero, divisornotfound	# Nel caso, esco dal ciclo
 	
@@ -19,9 +19,15 @@ PRIME:
 	
 	beq $t3, $zero, divisorfound	# Nel caso in cui il resto è nullo, esco dal ciclo
 	addi $t1, $t1, 1		# Incremento il divisore
+	j loop				# Ricomincia il ciclo
 	
-notfound: ### TRUE
-
+divisornotfound: ### TRUE
+	li $v0, 1			# Valore di ritorno uguale a 1 -> true
+	jr $ra				# Ritorno
+	
+divisorfound: ### FALSE
+	jr $ra
+	
 
 	
 	
