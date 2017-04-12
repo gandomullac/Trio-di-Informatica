@@ -3,8 +3,21 @@ number:	.word 12			# Numero n
 
 	.text				# Seguono le linee di codice
 	la $t0, number			# Carico l'indirizzo della word
-	lw $t1, 0($t0)			# Carico la word (il suo unico valore) nella variabile temporanea
+	lw $a1, 0($t0)			# Carico la word (il suo unico valore) nel registro degli argomenti
+	div $a1, $a1, 2			# Divido il contenuto del registro degli argomenti
+	jal PRIME			# Chiamata a funzione
 	
+PRIME:
+	move $v0, $zero			# Inizializzo la variabile di ritorno (opzionale nell'emulatore)
+	li $t1, 2			# Carico il divisore
 	
-	 
+	slt $t2, $t1, $a1		# Verifico che il divisore non sia minore di n/2
+	beq $t2, $zero, notfound	# Nel caso, esco dal ciclo
+	
+	div $a1, $t1			# Divido il dividendo per il divisore, quoziente e resto in LO e HI
+	mfhi $t3			# Carico il resto in una variabile temporanea
+	
+	beq $t3, $zero, found		# Nel caso in cui il resto è nullo, esco dal ciclo
+	addi $t1, $t1, 1
+	
 	
