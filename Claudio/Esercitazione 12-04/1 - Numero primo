@@ -1,17 +1,36 @@
 	.data				# Seguono le direttive
-number:	.word 12			# Numero n
+number:	.word 97			# Numero n
+primo:	.asciiz "Numero primo"		# Stringa
+non_primo: .asciiz "Numero non primo"	# Stringa
 
 	.text				# Seguono le linee di codice
 	la $t0, number			# Carico l'indirizzo della word
 	lw $a1, 0($t0)			# Carico la word (il suo unico valore) nel registro degli argomenti
-	div $a1, $a1, 2			# Divido il contenuto del registro degli argomenti
+	div $a2, $a1, 2			# Divido il contenuto del registro degli argomenti
+	
 	jal PRIME			# Chiamata a funzione
+	move $s0, $v0			# Prelevo il valore della variabile di ritorno
+	li $v0, 4			# Predispongo la variabile della chiamata a sistema a 4 -> Stampa stringa
+	
+	beq $s0, $zero, not_prime	# Se il numero non è primo, salta all'etichetta opportuna
+	
+	la $a0, primo			# Carico la stringa nella variabile temporanea
+	syscall				# Chiamata a sistema
+	li $v0, 10			# Predispongo la variabile della chiamata a sistema a 10 -> Termina esecuzione
+	syscall				# Chiamata a sistema
+			
+not_prime:
+	la $a0, non_primo		# Carico la stringa nella variabile temporanea
+	syscall				# Chiamata a sistema
+	li $v0, 10			# Predispongo la variabile della chiamata a sistema a 10 -> Termina esecuzione
+	syscall				# Chiamata a sistema
+
 	
 PRIME:
 	move $v0, $zero			# Inizializzo la variabile di ritorno (opzionale nell'emulatore)
 	li $t1, 2			# Carico il divisore
 loop:	
-	slt $t2, $t1, $a1		# Verifico che il divisore non sia minore di n/2
+	slt $t2, $t1, $a2		# Verifico che il divisore non sia minore di n/2
 	beq $t2, $zero, divisornotfound	# Nel caso, esco dal ciclo
 	
 	div $a1, $t1			# Divido il dividendo per il divisore, quoziente e resto in LO e HI
