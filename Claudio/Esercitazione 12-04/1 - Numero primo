@@ -4,6 +4,7 @@ primo:	.asciiz "Numero primo"		# Stringa
 non_primo: .asciiz "Numero non primo"	# Stringa
 
 	.text				# Seguono le linee di codice
+MAIN:
 	la $t0, number			# Carico l'indirizzo della word
 	lw $a1, 0($t0)			# Carico la word (il suo unico valore) nel registro degli argomenti
 	div $a2, $a1, 2			# Divido il contenuto del registro degli argomenti
