@@ -1,0 +1,11 @@
+	.data				# Seguono le direttive
+number:	.word 5				# Numero n
+
+	.text				# Seguono le linee di codice
+MAIN:
+	la $t0, number			# Carico l'indirizzo della word
+	lw $a1, 0($t0)			# Carico la word (il suo unico valore) nel registro degli argomenti
+	jal FACTORIAL			# Chiamata a funzione
+	
+FACTORIAL:
+	
