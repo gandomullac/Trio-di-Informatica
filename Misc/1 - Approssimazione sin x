@@ -1,0 +1,1 @@
+	.include "sintable.asm"		# Includo la look-up-table
