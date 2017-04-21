@@ -1,0 +1,42 @@
+	.data				# Seguono le direttive
+	.include "sintable.asm"		# Includo la look-up-table
+	.text				# Seguono le linee di codice
+MAIN:
+	jal SIN_APR			# Chiamata a funzione
+
+	mov.s $f12, $f30		# La stampa dei float si fa con f12 
+	li $v0, 2			# Predispongo la variabile della chiamata a sistema a 2 -> stampa float
+	syscall				# Stampo a video la variabile caricata ($v0 == 1)
+	addi $v0, $zero, 10		# Predispongo la variabile della chiamata a sistema a 10 -> Termina l'esecuzione
+	syscall				# Termino l'esecuzione
+		
+		
+SIN_APR:
+	lwc1 $f3, pi			# Carico la word del pi (f0 fino a f2 valore di ritorno secondo convenzione)(saranno argomenti)
+	lwc1 $f4, x0			# Carico la word di x0
+	lwc1 $f5, xstep			# Carico la word di xstep
+	lw $t2, N			# Carico la word di N
+	
+	sub.s $f6, $f3, $f4		# a = x-x0 	# Ottengo il numeratore
+	div.s $f6, $f6, $f5		# b = a/x	# Divido e ottengo l'indice (idx)
+	
+	floor.w.s $f7, $f6		# idx= floor(b)	# Arrotondo
+	
+	mfc1 $t0, $f7			# Creo una variabile temporanea per permettere la moltiplicazione
+	
+	div $t0, $t2			# Conto quante volte l'indice è divisibile per il numero dei valori nella sintable (divisione con HI e LO)
+	mflo $t3			# Ottengo il risultato intero della divisione
+	mfhi $t4			# Ottengo il resto della divisione
+	li $t5, 1			# Creo una variabile di valore 1
+	and $t3, $t5, $t3		# Eseguo il bitwise AND fra la variabile n e 1
+# Se l'indice, diviso per 100, dà un valore pari, allora l'angolo da calcolare sarà positivo, negativo altrimenti.
+		
+	mul $t1, $t4, 4			# Calcolo la pos. dell'elemento da estrarre da sintable effettuando la mol. idx * dim_word
+	
+	lwc1 $f30, sintable($t1)	# Carico il valore estratto da sintable di indirizzo offsettato di t1
+	beq $t3, $zero, positive_angle	# Se il valore di ritorno dà 0, salta la la successiva istruzione
+	neg.s $f30, $f30		# Rendo negativo il valore ottenuto dalla sintable 
+positive_angle:
+	jr $ra
+# salviamo i valori di ritorno nei registri 30 e 31 come valori di ritorno
+

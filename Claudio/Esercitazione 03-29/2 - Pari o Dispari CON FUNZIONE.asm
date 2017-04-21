@@ -9,7 +9,7 @@ MAIN:
 	li $a1, 12			# Dichiaro un valore n
 	jal ODD_EVEN			# Chiamata di funzione
 	or $s0, $v0, $zero		# Dichiarazione della variabile di salvataggio
-	li $v0, 4			#!# # Predispongo la variabile della chiamata a sistema a 4 -> stampa stringa
+	li $v0, 4			# Predispongo la variabile della chiamata a sistema a 4 -> stampa stringa
 	beq $s0, $zero, print_even	# Se il valore di ritorno dà 0, salta alla stampa della stringa
 		
 print_odd:
