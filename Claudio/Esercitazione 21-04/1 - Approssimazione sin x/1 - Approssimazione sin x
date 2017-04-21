@@ -1,6 +1,6 @@
 	.data				# Seguono le direttive
 	.include "sintable.asm"		# Includo la look-up-table
-
+err:	.asciiz "Look-up table field exceded."	# errore in caso idx > N
 	.text				# Seguono le linee di codice
 MAIN:
 	jal SIN_APR			# Chiamata a funzione
@@ -13,17 +13,28 @@ MAIN:
 		
 		
 SIN_APR:
-	lw c1 $f3, pi			# Carico la word del pi (f0 fino a f2 valore di ritorno secondo convenzione)(saranno argomenti)
+	lwc1 $f3, pi			# Carico la word del pi (f0 fino a f2 valore di ritorno secondo convenzione)(saranno argomenti)
 	lwc1 $f4, x0			# Carico la word di x0
 	lwc1 $f5, xstep			# Carico la word di xstep
+	lw $t2, N			# Carico la word di N
 	
-	sub.s $f6, $f2, $f3		# a = x-x0 	# Ottengo il numeratore
-	div.s $f6, $f6, 		# b = a/x	# Divido e ottengo l'indice (idx)
+	sub.s $f6, $f3, $f4		# a = x-x0 	# Ottengo il numeratore
+	div.s $f6, $f6, $f5		# b = a/x	# Divido e ottengo l'indice (idx)
 	
 	floor.w.s $f7, $f6		# idx= floor(b)	# Arrotondo
-# implementare controllo su N (dim_log)
-	mfc1 $t0, $f7
+	
+	mfc1 $t0, $f7			# Creo una variabile temporanea per permettere la moltiplicazione
+	slt $t1, $t0, $t2		# Confronto l'indice con la dimensione logica dell'array
+	beq $t1, $zero, exit_error	# Qualora fosse maggiore, chiamo la funzione di uscita
+		
 	mul $t1, $t0, 4			# Calcolo la pos. dell'elemento da estrarre da sintable effettuando la mol. idx * dim_word
-	lwc1 $f30, sintable($t0)	# Carico il valore estratto da sintable di indirizzo offsettato di t0
+	lwc1 $f30, sintable($t1)	# Carico il valore estratto da sintable di indirizzo offsettato di t0
 # salviamo i valori di ritorno nei registri 30 e 31 come valori di ritorno
 	jr $ra
+
+exit_error:
+	la $a0, err			# Carico la stringa di errore 
+	li $v0, 4			# Predispongo la variabile della chiamata a sistema a 4 -> Stampa stringa
+	syscall				# Termino l'esecuzione
+	li $v0, 10			# Predispongo la variabile della chiamata a sistema a 10 -> Termina esecuzione
+	syscall				# Termino l'esecuzione
