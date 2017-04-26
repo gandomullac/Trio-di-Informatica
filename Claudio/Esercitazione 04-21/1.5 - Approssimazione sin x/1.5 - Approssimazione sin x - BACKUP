@@ -4,7 +4,7 @@
 MAIN:
 	jal SIN_APR			# Chiamata a funzione
 
-	mov.s $f12, $f0			# La stampa dei float si fa con f12 
+	mov.s $f12, $f30		# La stampa dei float si fa con f12 
 	li $v0, 2			# Predispongo la variabile della chiamata a sistema a 2 -> stampa float
 	syscall				# Stampo a video la variabile caricata ($v0 == 1)
 	addi $v0, $zero, 10		# Predispongo la variabile della chiamata a sistema a 10 -> Termina l'esecuzione
@@ -12,7 +12,7 @@ MAIN:
 		
 		
 SIN_APR:
-	lwc1 $f3, pi			# Carico la word del pi (f0 fino a f2 valore di ritorno secondo convenzione)
+	lwc1 $f3, pi			# Carico la word del pi (f0 fino a f2 valore di ritorno secondo convenzione)(saranno argomenti)
 	lwc1 $f4, x0			# Carico la word di x0
 	lwc1 $f5, xstep			# Carico la word di xstep
 	lw $t2, N			# Carico la word di N
@@ -33,8 +33,10 @@ SIN_APR:
 		
 	mul $t1, $t4, 4			# Calcolo la pos. dell'elemento da estrarre da sintable effettuando la mol. idx * dim_word
 	
-	lwc1 $f0, sintable($t1)		# Carico il valore estratto da sintable di indirizzo offsettato di t1
+	lwc1 $f30, sintable($t1)	# Carico il valore estratto da sintable di indirizzo offsettato di t1
 	beq $t3, $zero, positive_angle	# Se il valore di ritorno dà 0, salta la la successiva istruzione
-	neg.s $f0, $f0			# Rendo negativo il valore ottenuto dalla sintable 
+	neg.s $f30, $f30		# Rendo negativo il valore ottenuto dalla sintable 
 positive_angle:
 	jr $ra
+# salviamo i valori di ritorno nei registri 30 e 31 come valori di ritorno
+
