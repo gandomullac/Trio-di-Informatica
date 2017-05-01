@@ -11,12 +11,16 @@ MAIN:
 	syscall				# Termino l'esecuzione
 		
 		
-SIN_APR:
-	lwc1 $f3, pi			# Carico la word del pi (f0 fino a f2 valore di ritorno secondo convenzione)
+SIN_APR:	
+	lwc1 $f3, pi			# Carico la word del pi
 	lwc1 $f4, x0			# Carico la word di x0
 	lwc1 $f5, xstep			# Carico la word di xstep
 	lw $t2, N			# Carico la word di N
 	
+	c.lt.s $f3, $f4			# Verifico il segno del numero della variabile pi (userò un registro dedicato per l'operazione) 
+	bc1f positive_var		# Se non negativo, salto l'operazione successiva
+	neg.s $f3, $f3
+positive_var:
 	sub.s $f6, $f3, $f4		# a = x-x0 	# Ottengo il numeratore
 	div.s $f6, $f6, $f5		# b = a/x	# Divido e ottengo l'indice (idx)
 	
@@ -34,7 +38,11 @@ SIN_APR:
 	mul $t1, $t4, 4			# Calcolo la pos. dell'elemento da estrarre da sintable effettuando la mol. idx * dim_word
 	
 	lwc1 $f0, sintable($t1)		# Carico il valore estratto da sintable di indirizzo offsettato di t1
-	beq $t3, $zero, positive_angle	# Se il valore di ritorno dà 0, salta la la successiva istruzione
+	beq $t3, $zero, positive_angle	# Se il valore di ritorno dà 0, salta la successiva istruzione
 	neg.s $f0, $f0			# Rendo negativo il valore ottenuto dalla sintable 
 positive_angle:
+	bc1f end			# Se la variabile pi all'inizio era negativa, cambio il segno del risultato (altrimenti salto l'operazione successiva)
+	neg.s $f0, $f0	
+end:
 	jr $ra
+	
