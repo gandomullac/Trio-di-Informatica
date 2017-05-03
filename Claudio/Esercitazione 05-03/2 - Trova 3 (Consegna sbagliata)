@@ -1,9 +1,9 @@
 	.data
 msg1:	.asciiz	"Il numero "		# Testo in output 1
-msg2:	.asciiz	"è stato estratto "	# Testo in output 2
-msg3:	.asciiz "volte."		# Testo in output 3
+msg2:	.asciiz	" è stato estratto "	# Testo in output 2
+msg3:	.asciiz " volte."		# Testo in output 3
 
-N:	.word 4				# Valore di N	(numero iterazioni)
+N:	.word 40			# Valore di N	(numero iterazioni)
 M:	.word 3				# Valore di M	(numero ricercato)
 
 	.text				# Seguono le linee di codice
@@ -18,7 +18,8 @@ MAIN:
 	add $a2, $s1, $zero		# Copio il valore di M nel registro degli argomenti	
 	jal READ_STACK			# Chiamata a funzione
 	
-	add $a3, $v0, $zero		# Copio il numero delle frequenze di M in un registro degli argomenti
+	add $s2, $v0, $zero		# Salvo numero delle frequenze di M
+	add $a3, $s2, $zero		# Copio il numero delle frequenze di M in un registro degli argomenti
 
 	jal PRINT			# Chiamata a funzione
 	
@@ -27,6 +28,7 @@ MAIN:
 
 
 D6:
+	add $t2, $ra, $zero		# Salvo l'indirizzo della funzione chiamante in una variabile temporanea
 	move $t1, $a1			# Imposto il numero di iterazioni
 	li $t0, 0			# Imposto l'indice
 	li $a1 6			# Impongo il limite alto per la generazione del numero casuale 
@@ -42,7 +44,7 @@ D6_loop:
 	addi $t0, $t0, 1		# Incremento l'indice
 	bne $t0, $t1, D6_loop		# Se l'indice è diverso da N, ripeti il loop
 	
-	jr $ra				# Ritorno alla funzione chiamante
+	jr $t2				# Ritorno alla funzione chiamante
 	
 	
 PUSH:	
@@ -55,6 +57,7 @@ PUSH:
 	
 READ_STACK:
 	# ritorna il numero di volte in cui M si presenta
+	add $t5, $ra, $zero		# Salvo l'indirizzo della funzione chiamante in una variabile temporanea
 	add $t1, $a1, $zero		# Imposto il numero di iterazioni
 	li $t0, 0			# Imposto l'indice
 	li $v0, 0			# Imposto il contatore
@@ -66,12 +69,12 @@ READ_loop:
 	
 	addi $t0, $t0, 1		# Incremento l'indice
 	beq $t3, $t4, counter		# Se il valore letto corrisponde a quello ricercato, incrementa il contatore
-	bne $t0, $t1, D6_loop		# Se l'indice è diverso da N, ripeto il loop
-	jr $ra				# Altrimenti ritorno alla funzione chiamante
+	bne $t0, $t1, READ_loop		# Se l'indice è diverso da N, ripeto il loop
+	jr $t5				# Altrimenti ritorno alla funzione chiamante
 counter:	
 	addi $v0, $v0, 1		# Incremento il contatore				
-	bne $t0, $t1, D6_loop		# Se l'indice è diverso da N, ripeto il loop
-	jr $ra				# Altrimenti ritorno alla funzione chiamante
+	bne $t0, $t1, READ_loop		# Se l'indice è diverso da N, ripeto il loop
+	jr $t5				# Altrimenti ritorno alla funzione chiamante
 
 
 PRINT:
@@ -83,7 +86,7 @@ PRINT:
 	li $v0, 1			# Predispongo la variabile della chiamata a sistema a 1 -> Stampa intero
 	syscall				# Chiamata a sistema
 	
-	la $a0, msg1			# Carico la parola
+	la $a0, msg2			# Carico la parola
 	li $v0, 4			# Predispongo la variabile della chiamata a sistema a 4 -> Stampa stringa
 	syscall				# Chiamata a sistema
 	
@@ -91,7 +94,7 @@ PRINT:
 	li $v0, 1			# Predispongo la variabile della chiamata a sistema a 1 -> Stampa intero
 	syscall				# Chiamata a sistema
 	
-	la $a0, msg1			# Carico la parola
+	la $a0, msg3			# Carico la parola
 	li $v0, 4			# Predispongo la variabile della chiamata a sistema a 4 -> Stampa stringa
 	syscall				# Chiamata a sistema
 	
