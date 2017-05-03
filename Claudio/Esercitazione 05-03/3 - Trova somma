@@ -1,0 +1,101 @@
+	.data
+msg1:	.asciiz	"Dadi:  "		# Testo in output 1
+msg2:	.asciiz	" - "			# Testo in output 2
+msg3:	.asciiz	"\n"			# Testo in output 3
+
+N:	.word 20			# Valore di N	(numero iterazioni)
+M:	.word 2				# Valore di M	(numero ricercato)
+
+	.text				# Seguono le linee di codice
+MAIN: 
+	lw $s0, N			# Carico la word contenente N
+	lw $s1, M			# Carico la word contenente M
+	
+	add $a1, $s1, $zero		# Copio il valore di M nel registro degli argomenti
+	
+loop:
+	jal D6				# Chiamata a funzione	
+	jal READ_STACK			# Chiamata a funzione
+	addi $s3, $s3, 1		# Incremento l'indice
+	bne $s3, $s0, loop		# Se l'indice è diverso da M, ricomincia il ciclo
+	
+	li $v0, 10			# Predispongo la variabile della chiamata a sistema a 10 -> Termina esecuzione
+	syscall				# Chiamata a sistema
+
+
+D6:
+	add $t2, $ra, $zero		# Salvo l'indirizzo della funzione chiamante in una variabile temporanea
+	add $t1, $a1, $zero		# Imposto il numero di iterazioni
+	li $t0, 0			# Imposto l'indice
+	li $a1 6			# Impongo il limite alto per la generazione del numero casuale 
+D6_loop:	
+	li $v0 42			# Predispongo la variabile della chiamata a sistema a 42 -> random int range
+	li $a0 222			# ID di generazione del numero casuale
+	syscall				# Ottengo il numero causale in $a0
+	
+	addi $a0, $a0, 1		# Aggiungo 1 al valore, passando da un intervallo [0;5] ad un intervallo [1;6].
+					# Rimango in $a0 poiché è argomento della prossima funzione
+	jal PUSH			# Chiamata di funzione
+	
+	addi $t0, $t0, 1		# Incremento l'indice
+	bne $t0, $t1, D6_loop		# Se l'indice è diverso da M, ripeti il loop
+	
+	jr $t2				# Ritorno alla funzione chiamante
+	
+	
+PUSH:	
+	# Ottengo il valore in entrata e lo carico nello stack
+	addi $sp,$sp,-4
+	sw $a0,($sp)
+	
+	jr $ra
+	
+	
+READ_STACK:
+	# ritorna il numero di volte in cui i tre valori coincidono
+	li $v0, 0			# Inizializzo v0
+	add $t6, $ra, $zero		# Salvo l'indirizzo della funzione chiamante in una variabile temporanea
+	li $t3, 0			# Imposto il contatore
+	li $t5, 11			# Inizializzo il valore massimo
+
+	lw $t0, 0($sp)			# Leggo dallo stack e scrivo in $t0
+	lw $t1, 4($sp) 			# Leggo dallo stack e scrivo in $t1
+	addi $sp, $sp 8 		# Incremento $sp di 8 (spazio per 2 word)
+
+	add $t2, $t0, $t1		# Calcolo la somma dei due valori
+	slti $t3, $t2, 8		# Se la somma è minore di 8, t3 = 1
+	
+	beq $t3, 1, exit		# Se il valore di controllo è 1, salto alla fine del controllo
+	
+	slt $t3, $t5, $t2		# Se la somma è minore di 11, t3 = 1
+	
+	beq $t3, 1, exit		# Se il valore di controllo è 1, salto alla fine del controllo
+	add $a1, $t0, $zero		# Copio il valore del primo dado nel registro degli argomenti
+	add $a2, $t1, $zero		# Copio il valore del secondo dado nel registro degli argomenti
+ 	jal PRINT
+exit:
+	jr $t6				# Ritorno alla funzione chiamante
+
+
+PRINT:
+	la $a0, msg1			# Carico la parola
+	li $v0, 4			# Predispongo la variabile della chiamata a sistema a 4 -> Stampa stringa
+	syscall				# Chiamata a sistema
+	
+	add $a0, $a1, $zero		# Salvo il primo dado nel registro dell'argomento della syscall
+	li $v0, 1			# Predispongo la variabile della chiamata a sistema a 1 -> Stampa intero
+	syscall				# Chiamata a sistema
+	
+	la $a0, msg2			# Carico la parola
+	li $v0, 4			# Predispongo la variabile della chiamata a sistema a 4 -> Stampa stringa
+	syscall				# Chiamata a sistema
+	
+	add $a0, $a2, $zero		# Salvo il secondo dado nel registro dell'argomento della syscall
+	li $v0, 1			# Predispongo la variabile della chiamata a sistema a 1 -> Stampa intero
+	syscall				# Chiamata a sistema
+		
+	la $a0, msg3			# Carico la parola
+	li $v0, 4			# Predispongo la variabile della chiamata a sistema a 4 -> Stampa stringa
+	syscall				# Chiamata a sistema
+	
+	jr $ra				# Ritorno alla funzione chiamante
