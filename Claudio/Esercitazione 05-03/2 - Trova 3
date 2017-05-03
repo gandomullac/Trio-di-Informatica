@@ -1,0 +1,78 @@
+	.data
+msg1:	.asciiz	"Il numero "		# Testo in output 1
+msg2:	.asciiz	"è stato estratto "	# Testo in output 2
+msg3:	.asciiz "volte."		# Testo in output 3
+
+N:	.word 4				# Valore di N	(numero iterazioni)
+M:	.word 3				# Valore di M	(numero ricercato)
+
+	.text				# Seguono le linee di codice
+MAIN: 
+	lw $a0, N			# Carico la word contenente N, che sarà argomento della funzione
+	jal D6				# Chiamata a funzione
+	
+	lw $s0, M			# Carico la word contenente N
+	addi $a0, $s0, $zero		# Copio il contenuto di s0 nel registro degli argomenti	
+	jal READ_STACK			# Chiamata a funzione
+	
+	addi $a1, $v0, $zero		# Copio il valore di M in un registro degli argomenti
+
+	jal PRINT			# Chiamata a funzione
+	
+	li $v0, 10			# Predispongo la variabile della chiamata a sistema a 10 -> Termina esecuzione
+	syscall				# Chiamata a sistema
+
+D6:
+	move $t1, $a0			# Imposto il numero di volte in cui si eseguirà il loop
+	li $t0, 0			# Imposto l'indice
+	
+	li $v0 40			# Predispongo la variabile della chiamata a sistema a 40 -> set seed
+	syscall				# Set random seed
+	li $a1 6			# Impongo il limite alto per la generazione del numero casuale 
+D6_loop:	
+	li $v0 42			# Predispongo la variabile della chiamata a sistema a 42 -> random int range
+	li $a0 222			# ID di generazione del numero casuale
+	syscall				# Ottengo il numero causale in $a0
+	
+	addi $a0, $a0, 1		# Aggiungo 1 al valore, passando da un intervallo [0;5] ad un intervallo [1;6].
+					# Rimango in $a0 poiché è argomento della prossima funzione
+	jal PUSH			# Chiamata di funzione
+	
+	addi $t0, $t0, 1		# Incremento l'indice
+	bltz $t0, $t1, D6_loop		# Se l'indice è minore di N, ripeti il loop
+	
+	jr $ra				# Ritorno al MAIN
+	
+PUSH:	
+	# Ottengo il valore in entrata e lo carico nello stack
+	addi $sp,$sp,-4
+	sw $a0,($sp)
+	
+	jr $ra
+	
+READ_STACK:
+	# ritorna il numero di volte in cui M si presenta
+	
+
+
+PRINT:
+	la $a0, msg1			# Carico la parola
+	li $v0, 4			# Predispongo la variabile della chiamata a sistema a 4 -> Stampa stringa
+	syscall				# Chiamata a sistema
+	
+	move $a0, $a1			# Salvo il contenuto della variabile di ritorno
+	li $v0, 1			# Predispongo la variabile della chiamata a sistema a 1 -> Stampa intero
+	syscall				# Chiamata a sistema
+	
+	la $a0, msg1			# Carico la parola
+	li $v0, 4			# Predispongo la variabile della chiamata a sistema a 4 -> Stampa stringa
+	syscall				# Chiamata a sistema
+	
+	move $a0, $a1			# Salvo il contenuto della variabile di ritorno
+	li $v0, 1			# Predispongo la variabile della chiamata a sistema a 1 -> Stampa intero
+	syscall				# Chiamata a sistema
+	
+	la $a0, msg1			# Carico la parola
+	li $v0, 4			# Predispongo la variabile della chiamata a sistema a 4 -> Stampa stringa
+	syscall				# Chiamata a sistema
+	
