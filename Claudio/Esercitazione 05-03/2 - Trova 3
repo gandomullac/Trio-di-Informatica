@@ -8,11 +8,14 @@ M:	.word 3				# Valore di M	(numero ricercato)
 
 	.text				# Seguono le linee di codice
 MAIN: 
-	lw $a0, N			# Carico la word contenente N, che sarà argomento della funzione
+	lw $s0, N			# Carico la word contenente N
+	lw $s1, M			# Carico la word contenente M
+	
+	addi $a0, $s0, $zero		# Copio il valore di N nel registro degli argomenti
 	jal D6				# Chiamata a funzione
 	
-	lw $s0, M			# Carico la word contenente N
-	addi $a0, $s0, $zero		# Copio il contenuto di s0 nel registro degli argomenti	
+	addi $a0, $s0, $zero		# Copio il valore di N nel registro degli argomenti
+	addi $a1, $s1, $zero		# Copio il valore di M nel registro degli argomenti	
 	jal READ_STACK			# Chiamata a funzione
 	
 	addi $a1, $v0, $zero		# Copio il valore di M in un registro degli argomenti
@@ -22,8 +25,9 @@ MAIN:
 	li $v0, 10			# Predispongo la variabile della chiamata a sistema a 10 -> Termina esecuzione
 	syscall				# Chiamata a sistema
 
+
 D6:
-	move $t1, $a0			# Imposto il numero di volte in cui si eseguirà il loop
+	move $t1, $a0			# Imposto il numero di iterazioni
 	li $t0, 0			# Imposto l'indice
 	
 	li $v0 40			# Predispongo la variabile della chiamata a sistema a 40 -> set seed
@@ -43,6 +47,7 @@ D6_loop:
 	
 	jr $ra				# Ritorno al MAIN
 	
+	
 PUSH:	
 	# Ottengo il valore in entrata e lo carico nello stack
 	addi $sp,$sp,-4
@@ -50,9 +55,26 @@ PUSH:
 	
 	jr $ra
 	
+	
 READ_STACK:
 	# ritorna il numero di volte in cui M si presenta
+	move $t1, $a0			# Imposto il numero di iterazioni
+	li $t0, 0			# Imposto l'indice
+	li $t5, 0			# Imposto il contatore
+	move $t3, $a0			# Salvo temporaneamente il valore ricercato
+
+READ_loop:	
+	lw $t4, 0($sp) 			# Leggo dallo stack e scrivo in $t0
+	addi $sp, $sp 4 		# Incremento $sp di 4
 	
+	addi $t0, $t0, 1		# Incremento l'indice
+	beq $t3, $t4, counter		# Se il valore letto corrisponde a quello ricercato, incrementa il contatore
+	bltz $t0, $t1, D6_loop		# Se l'indice è minore di N, ripeto il loop
+	jr $ra				# Altrimenti ritorno alla funzione chiamante
+counter:	
+	addi $t5, $t5, 1		# Incremento il contatore				
+	bltz $t0, $t1, D6_loop		# Se l'indice è minore di N, ripeto il loop
+	jr $ra				# Altrimenti ritorno alla funzione chiamante
 
 
 PRINT:
@@ -75,4 +97,3 @@ PRINT:
 	la $a0, msg1			# Carico la parola
 	li $v0, 4			# Predispongo la variabile della chiamata a sistema a 4 -> Stampa stringa
 	syscall				# Chiamata a sistema
-	
