@@ -1,0 +1,33 @@
+	.data
+msg:	.asciiz	"Valore estratto: "	# Testo in output
+
+	.text				# Seguono le linee di codice
+MAIN: 
+	jal D6				# Chiamata a funzione
+	
+	move $s0, $v0			# Salvo il contenuto della variabile di ritorno
+	
+	la $a0, msg			# Carico la parola
+	li $v0, 4			# Predispongo la variabile della chiamata a sistema a 4 -> Stampa stringa
+	syscall				# Chiamata a sistema
+	
+	move $a0, $s0			# Salvo il contenuto della variabile di ritorno
+	li $v0, 1			# Predispongo la variabile della chiamata a sistema a 1 -> Stampa intero
+	syscall				# Chiamata a sistema
+	
+	li $v0, 10			# Predispongo la variabile della chiamata a sistema a 10 -> Termina esecuzione
+	syscall				# Chiamata a sistema
+
+D6:
+	li $v0 40			# Predispongo la variabile della chiamata a sistema a 40 -> set seed
+	syscall				# Set random seed
+	li $v0 42			# Predispongo la variabile della chiamata a sistema a 42 -> random int range
+	li $a0 222			# ID di generazione del numero casuale
+	li $a1 6			# Impongo il limite alto per la generazione del numero casuale 
+	syscall				# Ottengo il numero causale in $a0
+	
+	move $v0, $a0			# Sposto i valori presenti nel registro degli argomenti in quello di ritorno
+	addi $v0, $v0, 1		# Aggiungo 1 al valore, passando da un intervallo [0;5] ad un intervallo [1;6]
+	jr $ra				# Ritorno al MAIN
+	
+	
