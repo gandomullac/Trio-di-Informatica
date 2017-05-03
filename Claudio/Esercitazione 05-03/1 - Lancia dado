@@ -19,8 +19,6 @@ MAIN:
 	syscall				# Chiamata a sistema
 
 D6:
-	li $v0 40			# Predispongo la variabile della chiamata a sistema a 40 -> set seed
-	syscall				# Set random seed
 	li $v0 42			# Predispongo la variabile della chiamata a sistema a 42 -> random int range
 	li $a0 222			# ID di generazione del numero casuale
 	li $a1 6			# Impongo il limite alto per la generazione del numero casuale 
