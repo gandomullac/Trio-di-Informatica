@@ -1,7 +1,6 @@
 	.data
-msg1:	.asciiz	"Il numero "		# Testo in output 1
-msg2:	.asciiz	" è stato estratto "	# Testo in output 2
-msg3:	.asciiz " volte."		# Testo in output 3
+msg1:	.asciiz	"Ci sono state "	# Testo in output 1
+msg2:	.asciiz	" occorrenze."		# Testo in output 2
 
 N:	.word 40			# Valore di N	(numero iterazioni)
 M:	.word 3				# Valore di M	(numero ricercato)
@@ -10,16 +9,19 @@ M:	.word 3				# Valore di M	(numero ricercato)
 MAIN: 
 	lw $s0, N			# Carico la word contenente N
 	lw $s1, M			# Carico la word contenente M
+	li $s2, 0			# Inizializzo la variabile contenente le frequenze
+	li $s3, 0			# Inizializzo l'indice
 	
-	add $a1, $s0, $zero		# Copio il valore di N nel registro degli argomenti
-	jal D6				# Chiamata a funzione
+	add $a1, $s1, $zero		# Copio il valore di M nel registro degli argomenti
 	
-	add $a1, $s0, $zero		# Copio il valore di N nel registro degli argomenti
-	add $a2, $s1, $zero		# Copio il valore di M nel registro degli argomenti	
+loop:
+	jal D6				# Chiamata a funzione	
 	jal READ_STACK			# Chiamata a funzione
+	add $s2, $s2, $v0		# Aggiungo il valore di ritorno della funzione precedente al contatore delle frequenze
+	addi $s3, $s3, 1		# Incremento l'indice
+	bne $s3, $s0, loop		# Se l'indice è diverso da M, ricomincia il ciclo
 	
-	add $s2, $v0, $zero		# Salvo numero delle frequenze di M
-	add $a3, $s2, $zero		# Copio il numero delle frequenze di M in un registro degli argomenti
+	add $a2, $s2, $zero		# Copio il numero delle frequenze in un registro degli argomenti
 
 	jal PRINT			# Chiamata a funzione
 	
@@ -42,7 +44,7 @@ D6_loop:
 	jal PUSH			# Chiamata di funzione
 	
 	addi $t0, $t0, 1		# Incremento l'indice
-	bne $t0, $t1, D6_loop		# Se l'indice è diverso da N, ripeti il loop
+	bne $t0, $t1, D6_loop		# Se l'indice è diverso da M, ripeti il loop
 	
 	jr $t2				# Ritorno alla funzione chiamante
 	
@@ -56,25 +58,22 @@ PUSH:
 	
 	
 READ_STACK:
-	# ritorna il numero di volte in cui M si presenta
+	# ritorna il numero di volte in cui i tre valori coincidono
+	li $v0, 0			# Inizializzo v0
 	add $t5, $ra, $zero		# Salvo l'indirizzo della funzione chiamante in una variabile temporanea
-	add $t1, $a1, $zero		# Imposto il numero di iterazioni
-	li $t0, 0			# Imposto l'indice
-	li $v0, 0			# Imposto il contatore
-	add $t3, $a2, $zero		# Salvo temporaneamente il valore ricercato
+	li $t3, 0			# Imposto il contatore
 
-READ_loop:	
-	lw $t4, 0($sp) 			# Leggo dallo stack e scrivo in $t4
-	addi $sp, $sp 4 		# Incremento $sp di 4
-	
-	addi $t0, $t0, 1		# Incremento l'indice
-	beq $t3, $t4, counter		# Se il valore letto corrisponde a quello ricercato, incrementa il contatore
-	bne $t0, $t1, READ_loop		# Se l'indice è diverso da N, ripeto il loop
-	jr $t5				# Altrimenti ritorno alla funzione chiamante
-counter:	
-	addi $v0, $v0, 1		# Incremento il contatore				
-	bne $t0, $t1, READ_loop		# Se l'indice è diverso da N, ripeto il loop
-	jr $t5				# Altrimenti ritorno alla funzione chiamante
+	lw $t0, 0($sp)			# Leggo dallo stack e scrivo in $t0
+	lw $t1, 4($sp) 			# Leggo dallo stack e scrivo in $t1
+	lw $t2, 8($sp) 			# Leggo dallo stack e scrivo in $t2
+	addi $sp, $sp 12 		# Incremento $sp di 12 (spazio per 3 word)
+
+	bne $t0, $t1, exit		# Se il primo dado è diverso dal secondo, salta alla fine del controllo
+	bne $t1, $t2, exit		# Se il secondo dado è diverso dal terzo, salta alla fine del controllo
+	bne $t2, $t0, exit		# Se il terzo dado è diverso dal primo, sltaa alla fine del controllo
+	addi $v0, $v0, 1		# Se i controlli precedenti danno esito positivo, ritorno 1
+exit:
+	jr $t5				# Ritorno alla funzione chiamante
 
 
 PRINT:
@@ -87,14 +86,6 @@ PRINT:
 	syscall				# Chiamata a sistema
 	
 	la $a0, msg2			# Carico la parola
-	li $v0, 4			# Predispongo la variabile della chiamata a sistema a 4 -> Stampa stringa
-	syscall				# Chiamata a sistema
-	
-	add $a0, $a3, $zero		# Salvo il numero delle frequenze di M nel registro dell'argomento della syscall
-	li $v0, 1			# Predispongo la variabile della chiamata a sistema a 1 -> Stampa intero
-	syscall				# Chiamata a sistema
-	
-	la $a0, msg3			# Carico la parola
 	li $v0, 4			# Predispongo la variabile della chiamata a sistema a 4 -> Stampa stringa
 	syscall				# Chiamata a sistema
 	
