@@ -29,9 +29,6 @@ MAIN:
 D6:
 	move $t1, $a1			# Imposto il numero di iterazioni
 	li $t0, 0			# Imposto l'indice
-	
-	li $v0 40			# Predispongo la variabile della chiamata a sistema a 40 -> set seed
-	syscall				# Set random seed
 	li $a1 6			# Impongo il limite alto per la generazione del numero casuale 
 D6_loop:	
 	li $v0 42			# Predispongo la variabile della chiamata a sistema a 42 -> random int range
@@ -45,7 +42,7 @@ D6_loop:
 	addi $t0, $t0, 1		# Incremento l'indice
 	bne $t0, $t1, D6_loop		# Se l'indice è diverso da N, ripeti il loop
 	
-	jr $ra				# Ritorno al MAIN
+	jr $ra				# Ritorno alla funzione chiamante
 	
 	
 PUSH:	
@@ -58,10 +55,10 @@ PUSH:
 	
 READ_STACK:
 	# ritorna il numero di volte in cui M si presenta
-	addi $t1, $a1, $zero		# Imposto il numero di iterazioni
+	add $t1, $a1, $zero		# Imposto il numero di iterazioni
 	li $t0, 0			# Imposto l'indice
 	li $v0, 0			# Imposto il contatore
-	addi $t3, $a2, $zero		# Salvo temporaneamente il valore ricercato
+	add $t3, $a2, $zero		# Salvo temporaneamente il valore ricercato
 
 READ_loop:	
 	lw $t4, 0($sp) 			# Leggo dallo stack e scrivo in $t4
@@ -82,7 +79,7 @@ PRINT:
 	li $v0, 4			# Predispongo la variabile della chiamata a sistema a 4 -> Stampa stringa
 	syscall				# Chiamata a sistema
 	
-	move $a0, $a1			# Salvo il contenuto della variabile di ritorno
+	add $a0, $a2, $zero		# Salvo M nel registro dell'argomento della syscall
 	li $v0, 1			# Predispongo la variabile della chiamata a sistema a 1 -> Stampa intero
 	syscall				# Chiamata a sistema
 	
@@ -90,10 +87,12 @@ PRINT:
 	li $v0, 4			# Predispongo la variabile della chiamata a sistema a 4 -> Stampa stringa
 	syscall				# Chiamata a sistema
 	
-	move $a0, $a1			# Salvo il contenuto della variabile di ritorno
+	add $a0, $a3, $zero		# Salvo il numero delle frequenze di M nel registro dell'argomento della syscall
 	li $v0, 1			# Predispongo la variabile della chiamata a sistema a 1 -> Stampa intero
 	syscall				# Chiamata a sistema
 	
 	la $a0, msg1			# Carico la parola
 	li $v0, 4			# Predispongo la variabile della chiamata a sistema a 4 -> Stampa stringa
 	syscall				# Chiamata a sistema
+	
+	jr $ra				# Ritorno alla funzione chiamante
