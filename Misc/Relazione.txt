@@ -1,0 +1,33 @@
+#####################################################
+#	CALCOLO DELLA VARIANZA  - VERSIONE BASE	    #
+#						    #
+#	Gruppo di:				    #
+#		Giacomo Antonioli		    #
+#		Claudio Gandini			    #
+#		Giulio Simani			    #
+#####################################################
+
+Si consegnano due versioni del programma: la prima, "varianza-base.asm" segue pedissequamente le istruzione della consegna, facendo uso quindi della formula estesa della varianza. La seconda versione, "varianza-ottimizzato.asm", ricorre alla versione ridotta della formula, che richiede meno istruzioni in assembly per ottenere il medesimo risultato.
+
+
+	- Informazioni generali
+Il programma inizia con la chiamata alla funzione VARIANZA che a sua volta, dopo aver opportunamente salvato l'indirizzo di ritorno al MAIN, chiama la funzione MEDIA. All'interno di quest'ultima si esegue un ciclo che accumula ogni valore dell'array, per poi convertire la variabile della sommatoria da tipo intero a virgola mobile. Infine ottiene la media dividendo l'accumulatore per il numero di elementi del vettore. 
+Passa quindi il valore calcolato alla funzione VARIANZA, che esegue un ciclo molto simile a quello della funzione precedente, con la differenza che si opera con valori floating point e con l'applicazione della formula estesa della varianza estesa anziché quella della media.
+Infine si ritorna al MAIN il valore della varianza in un registro di ritorno differente da quello usato nel calcolo della media, così da poter salvare entrambi i valori nel MAIN.
+Il programma termina dopo la stampa della media e della varianza attraverso la funzione PRINT.
+
+
+	- Versione ottimizzata
+
+
+							E(xi)^2-n(xmedio)^2
+			varianza (formula ridotta)=	___________________
+			
+								n
+
+Nella versione ottimizzata si ricorre alla formula ridotta della varianza. Al posto di convertire in floating point ogni singolo valore dell'array, si sommano gli elementi interi elevati al quadrato; il risultato viene poi convertito in virgola mobile. A questo punto viene sottratta la media al quadrato moltiplicata per num, e infine il tutto viene diviso per num.
+Si risparmiano così numerose istruzioni poiché non si converte ogni singolo elemento intero dell'array in virgola mobile.
+
+	- Test cases
+Mentre la versione base esegue i test solamente attraverso un metodo sequenziale (ripetizione del codice), la versione ottimizzata del programma esegue un ciclo discriminando l'array da utilizzare.
+
